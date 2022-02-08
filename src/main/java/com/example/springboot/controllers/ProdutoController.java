@@ -32,15 +32,13 @@ public class ProdutoController {
 	@GetMapping("/produtos")
 	public ResponseEntity<List<ProdutoModel>> getAllProdutos(){
 		List<ProdutoModel> produtosList = produtoRepository.findAll();
-		if(produtosList.isEmpty()) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}else {
+		if(!produtosList.isEmpty()) {
 			for(ProdutoModel produto : produtosList) {
 				long id = produto.getIdProduto();
 				produto.add(linkTo(methodOn(ProdutoController.class).getOneProduto(id)).withSelfRel());
 			}
-			return new ResponseEntity<List<ProdutoModel>>(produtosList, HttpStatus.OK);
 		}
+		return new ResponseEntity<List<ProdutoModel>>(produtosList, HttpStatus.OK);
 	}
 	
 	@GetMapping("/produtos/{id}")
@@ -48,10 +46,9 @@ public class ProdutoController {
 		Optional<ProdutoModel> produtoO = produtoRepository.findById(id);
 		if(!produtoO.isPresent()) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}else {
-			produtoO.get().add(linkTo(methodOn(ProdutoController.class).getAllProdutos()).withRel("Lista de Produtos"));
-			return new ResponseEntity<ProdutoModel>(produtoO.get(), HttpStatus.OK);
 		}
+		produtoO.get().add(linkTo(methodOn(ProdutoController.class).getAllProdutos()).withRel("Lista de Produtos"));
+		return new ResponseEntity<ProdutoModel>(produtoO.get(), HttpStatus.OK);
 	}
 	
 	@PostMapping("/produtos")
@@ -64,10 +61,9 @@ public class ProdutoController {
 		Optional<ProdutoModel> produtoO = produtoRepository.findById(id);
 		if(!produtoO.isPresent()) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}else {
-			produtoRepository.delete(produtoO.get());
-			return new ResponseEntity<>(HttpStatus.OK);
 		}
+		produtoRepository.delete(produtoO.get());
+		return new ResponseEntity<>(HttpStatus.OK);
 	}
 	
 	@PutMapping("/produtos/{id}")
@@ -76,10 +72,9 @@ public class ProdutoController {
 		Optional<ProdutoModel> produtoO = produtoRepository.findById(id);
 		if(!produtoO.isPresent()) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}else {
-			produto.setIdProduto(produtoO.get().getIdProduto());
-			return new ResponseEntity<ProdutoModel>(produtoRepository.save(produto), HttpStatus.OK);
 		}
+		produto.setIdProduto(produtoO.get().getIdProduto());
+		return new ResponseEntity<ProdutoModel>(produtoRepository.save(produto), HttpStatus.OK);
 	}
 
 }
