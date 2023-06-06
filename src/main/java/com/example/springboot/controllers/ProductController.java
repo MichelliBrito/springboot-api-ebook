@@ -4,6 +4,7 @@ import com.example.springboot.dtos.ProductRecordDto;
 import com.example.springboot.models.ProductModel;
 import com.example.springboot.repositories.ProductRepository;
 import jakarta.validation.Valid;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -46,7 +47,9 @@ public class ProductController {
 	
 	@PostMapping("/products")
 	public ResponseEntity<ProductModel> saveProduct(@RequestBody @Valid ProductRecordDto productRecordDto) {
-		return ResponseEntity.status(HttpStatus.CREATED).body(productRepository.save(productRecordDto.convertToProductModel()));
+		var productModel = new ProductModel();
+		BeanUtils.copyProperties(productRecordDto, productModel);
+		return ResponseEntity.status(HttpStatus.CREATED).body(productRepository.save(productModel));
 	}
 	
 	@DeleteMapping("/products/{id}")
@@ -66,8 +69,8 @@ public class ProductController {
 		if(productO.isEmpty()) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found.");
 		}
-		var productModel = productRecordDto.convertToProductModel();
-		productModel.setIdProduct(productO.get().getIdProduct());
+		var productModel = productO.get();
+		BeanUtils.copyProperties(productRecordDto, productModel);
 		return ResponseEntity.status(HttpStatus.OK).body(productRepository.save(productModel));
 	}
 
